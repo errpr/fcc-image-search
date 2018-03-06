@@ -1,10 +1,41 @@
 require('dotenv').config();
-var express = require('express');
-var mongoClient = require("mongodb").MongoClient;
+const axios = require('axios');
+const express = require('express');
+let mongoClient = require("mongodb").MongoClient;
 const dbUrl = `mongodb://${process.env.DB_USER}:${process.env.DB_PASS}@${process.env.DB_HOST}:${process.env.DB_PORT}/fcc-errpr`;
 const appUrl = "http://localhost:3000/";
-var app = express();
+let app = express();
 
+app.get("/api/imagesearch/*", function (request, response) {
+  let bingParams = `q=${request.params[0]}&responseFilter=Images&safeSearch=Strict`;
+  if(request.query && request.query["offset"]) {
+    bingParams += `&offset=${request.query["offset"]}`;
+  }
+  let bingUrl = "https://api.cognitive.microsoft.com/bing/v7.0/search?" + bingParams;
+  let axInstance = axios.create({headers: {'Ocp-Apim-Subscription-Key' : process.env.BING_API_KEY}});
+  console.log(bingUrl);
+  axInstance.get(bingUrl).then(result => {
+    console.log(result.data);
+    if(result.data && result.data.images) { 
+      return result.data;
+    } else {
+      response.json([{}]);
+    }
+  }).then(json => {
+    console.log(json);
+    let results = json.images.value;
+    response.json(results.map(e => {
+      return {
+        url: e.contentUrl,
+        snippet: e.name,
+        thumbnail: e.thumbnailUrl,
+        context: e.hostPageUrl
+      }
+    }));
+  }).catch(err => console.log(err));
+});
+
+/*
 app.get("/new/*", function (request, response) {
   if(!/^https?:\/\/.+\..+$/.test(request.params[0])) {
     response.status(400).send("Invalid URL");
@@ -81,6 +112,7 @@ app.get("/:short", function (request, response) {
     }
   });
 });
+*/
 
 var listener = app.listen(process.env.PORT, function () {
   console.log('Your app is listening on port ' + listener.address().port);
