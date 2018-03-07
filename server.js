@@ -131,7 +131,7 @@ function persistResult(collection, q, results) {
     query: q,
     results: results
   };
-  collection.insert(data);
+  collection.insertOne(data);
 }
 
 app.get("/api/imagesearch/*", function (request, response) {
@@ -141,6 +141,7 @@ app.get("/api/imagesearch/*", function (request, response) {
     if(error) {
       throw error;
     }
+    client.db('fcc-errpr').collection('image-search-recent').updateOne({query: searchString}, {$set:{"time":Date.now()}},{upsert:true});
     let collection = client.db('fcc-errpr').collection('image-search');
     if(request.query && request.query["offset"]) {
       getDbResultWithOffset(collection, searchString, parseFloat(request.query["offset"])).then(result => {
