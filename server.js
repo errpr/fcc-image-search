@@ -67,9 +67,9 @@ function conformResults(googResult, bingResult) {
 
 function interlaceTwoArrays(a, b) {
   let len = Math.max(a.length, b.length);
-  result = [];
-  for(i = 0; i < len; i++) {
-    inner_r = [];
+  let result = [];
+  for(let i = 0; i < len; i++) {
+    let inner_r = [];
     if(i < a.length) {
       inner_r.push(a[i]);
     }
@@ -110,7 +110,7 @@ function getDbResultWithOffset(collection, q, offset) {
       return {
         collection: collection,
         query: q,
-        hasData: hasData,
+        hasData: true,
         json: result["results"].slice(offset, offset+10),
         offset: offset
       }
