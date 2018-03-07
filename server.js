@@ -172,14 +172,14 @@ app.get("/api/latest/imagesearch/", function (request, response) {
     }
     client.db('fcc-errpr')
           .collection('image-search-recent')
-          .find({},{sort: "time", limit: 10})
+          .find({},{sort: {"time":-1}, limit: 10})
           .project({query:1,time:1})
           .toArray()
           .then(a => {
       response.json(a.map(e => { 
         let o = {
-          query: e["query"],
-          time: new Date(e["time"]).toString()
+          term: e["query"],
+          when: new Date(e["time"]).toString()
         }
         return o;      
       }));
